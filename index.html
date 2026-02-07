@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>Französische Zahlön</title>
+  <title>Französische Zahlen</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
@@ -410,6 +410,12 @@ Belgien/Schweiz: septante, huitante, nonante
       </div>
       </div>
     </div>
+    <div style="margin-top: 16px; text-align: center; padding-top: 12px; border-top: 1px solid var(--border);">
+  <small style="color: var(--muted); font-size: 12px;">
+    © <span id="copyright-year">2026</span> Timo Schubert
+  </small>
+</div>
+
   </div>
 
   <script>
@@ -607,6 +613,7 @@ Belgien/Schweiz: septante, huitante, nonante
         }
       }
     });
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();[web:4][web:5]
 
     showQuestion();
   </script>
