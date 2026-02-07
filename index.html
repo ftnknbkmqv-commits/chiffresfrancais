@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Französische Zahlen Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #10131a;
+      --card: #181c24;
+      --accent: #3b82f6;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --border: #272b35;
+      --input-bg: #0b0e14;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      max-width: 680px;
+      width: 100%;
+      background: linear-gradient(145deg, #020617 0, #020617 40%, #050816 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.25);
+      padding: 20px 18px 18px;
+      box-shadow:
+        0 20px 40px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(15,23,42,0.9);
+    }
+
+    .header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.35);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .pill span {
+      font-size: 10px;
+      color: var(--accent);
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #111827 0, #020617 55%);
+      border-radius: 14px;
+      border: 1px solid rgba(55,65,81,0.8);
+      padding: 16px 14px 14px;
+      margin-bottom: 12px;
+    }
+
+    .number-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .number-display {
+      font-size: 32px;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    @media (min-width: 640px) {
+      .input-row {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease,
+        background 0.15s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(59,130,246,0.65);
+      background: #020617;
+    }
+
+    .btn {
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      padding: 9px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: background 0.15s ease, transform 0.05s ease,
+        box-shadow 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(145deg, #3b82f6, #2563eb);
+      color: white;
+      box-shadow: 0 10px 20px rgba(37,99,235,0.45);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 4px 10px rgba(37,99,235,0.55);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(148,163,184,0.45);
+    }
+
+    .btn-ghost:active {
+      transform: translateY(1px);
+      background: rgba(15,23,42,0.9);
+    }
+
+    .btn-small {
+      padding: 6px 8px;
+      font-size: 11px;
+      border-radius: 7px;
+    }
+
+    .status {
+      min-height: 30px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .status-main {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-main span.icon {
+      font-size: 16px;
+    }
+
+    .status-main span.label {
+      font-weight: 500;
+    }
+
+    .status-detail {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status-correct .label {
+      color: var(--success);
+    }
+
+    .status-wrong .label {
+      color: var(--danger);
+    }
+
+    .correct-answer {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .correct-answer strong {
+      color: var(--text);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.35);
+      color: var(--muted);
+    }
+
+    .chip strong {
+      color: var(--text);
+    }
+
+    .cheatsheet-toggle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .cheatsheet-wrapper.open .cheatsheet-toggle {
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
+
+    .cheatsheet {
+      margin-top: 0;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: radial-gradient(circle at top left, #020617 0, #020617 45%, #020617 100%);
+      padding: 0;
+      font-size: 13px;
+      line-height: 1.45;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease, border-color 0.2s ease, padding 0.2s ease;
+    }
+
+    .cheatsheet.open {
+      max-height: 420px;
+      overflow: auto;
+      border-color: rgba(75,85,99,0.9);
+      padding: 10px 11px;
+      margin-top: 4px;
+    }
+
+    .cheatsheet-section-title {
+      font-weight: 600;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+
+    .cheatsheet-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      background: rgba(15,23,42,0.85);
+      border-radius: 8px;
+      padding: 6px 7px;
+      margin-top: 4px;
+      border: 1px dashed rgba(55,65,81,0.9);
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .stats-row strong {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1>Französische Zahlen</h1>
+        <div class="subtitle">
+          Schreib die Zahl auf Französisch – Bindestriche oder Leerzeichen, beides passt.
+        </div>
+      </div>
+      <div class="pill">
+        Quiz <span>1–99 &amp; Besonderheiten</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="number-label">Zahl</div>
+      <div id="number" class="number-display">–</div>
+
+      <form id="quiz-form">
+        <div class="input-row">
+          <input
+            id="answer"
+            type="text"
+            placeholder="z. B. deux cent cinquante-trois"
+            autocomplete="off"
+          />
+          <button type="submit" class="btn btn-primary">
+            Prüfen ↵
+          </button>
+        </div>
+      </form>
+
+      <div class="status" id="status"></div>
+
+      <div style="margin-top: 8px;"></div>
+
+      <div class="stats-row">
+        <div>
+          Richtig: <strong id="stat-correct">0</strong> ·
+          Falsch: <strong id="stat-wrong">0</strong> ·
+          Quote: <strong id="stat-rate">–</strong>
+        </div>
+        <button id="next-btn" class="btn btn-ghost btn-small" type="button">
+          Neue Zahl
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="cheatsheet-wrapper" id="cheatsheet-wrapper">
+        <div class="cheatsheet-toggle">
+          <div class="subtitle">Cheatsheet – Regeln &amp; Besonderheiten</div>
+          <button id="cheat-toggle" class="btn btn-ghost btn-small" type="button">
+            Cheatsheet einblenden
+          </button>
+        </div>
+        <div id="cheatsheet" class="cheatsheet" aria-hidden="true">
+        <div class="cheatsheet-section-title">Grundzahlen &amp; Zehner</div>
+        <div class="cheatsheet-code">
+1–10: un, deux, trois, quatre, cinq, six, sept, huit, neuf, dix
+11–16: onze, douze, treize, quatorze, quinze, seize
+20, 30, 40, 50, 60: vingt, trente, quarante, cinquante, soixante
+        </div>
+
+        <div class="cheatsheet-section-title">„et un"-Regel</div>
+        <div class="cheatsheet-code">
+21, 31, 41, 51, 61, 71 → vingt-et-un, trente-et-un, ...
+71: soixante-et-onze (nicht „soixante-et-un")
+Kein „et" bei 81, 91: quatre-vingt-un, quatre-vingt-onze
+        </div>
+
+        <div class="cheatsheet-section-title">70er, 80er, 90er</div>
+        <div class="cheatsheet-code">
+70er: 70 = soixante-dix, 71–79 = soixante-(onze–dix-neuf)
+80er: 80 = quatre-vingts (mit -s), 81–89 = quatre-vingt-X (ohne -s)
+90er: 90 = quatre-vingt-dix, 91–99 = quatre-vingt-(onze–dix-neuf)
+        </div>
+
+        <div class="cheatsheet-section-title">Hundert, tausend, Million</div>
+        <div class="cheatsheet-code">
+100 = cent (ohne -s)
+200–900: deux-cents, trois-cents, ... (mit -s, wenn nichts folgt)
+101, 201, ...: cent-un, deux-cent-un (kein -s mehr!)
+
+1000: mille (immer ohne -s, auch bei 2000 = deux-mille)
+1 000 000: un million, 2 000 000: deux millions
+        </div>
+
+        <div class="cheatsheet-section-title">Nur klassisches Französisch</div>
+        <div class="cheatsheet-code">
+Belgien/Schweiz: septante, huitante, nonante
+→ im Quiz als „falsch" gewertet (wir üben das klassische System).
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const QUIZ_DATA = {
+      1:"un",2:"deux",3:"trois",4:"quatre",5:"cinq",6:"six",7:"sept",8:"huit",9:"neuf",10:"dix",
+      11:"onze",12:"douze",13:"treize",14:"quatorze",15:"quinze",16:"seize",17:"dix-sept",18:"dix-huit",19:"dix-neuf",20:"vingt",
+      21:"vingt-et-un",22:"vingt-deux",23:"vingt-trois",24:"vingt-quatre",25:"vingt-cinq",26:"vingt-six",27:"vingt-sept",28:"vingt-huit",29:"vingt-neuf",30:"trente",
+      31:"trente-et-un",32:"trente-deux",33:"trente-trois",34:"trente-quatre",35:"trente-cinq",36:"trente-six",37:"trente-sept",38:"trente-huit",39:"trente-neuf",40:"quarante",
+      41:"quarante-et-un",42:"quarante-deux",43:"quarante-trois",44:"quarante-quatre",45:"quarante-cinq",46:"quarante-six",47:"quarante-sept",48:"quarante-huit",49:"quarante-neuf",50:"cinquante",
+      51:"cinquante-et-un",52:"cinquante-deux",53:"cinquante-trois",54:"cinquante-quatre",55:"cinquante-cinq",56:"cinquante-six",57:"cinquante-sept",58:"cinquante-huit",59:"cinquante-neuf",60:"soixante",
+      61:"soixante-et-un",62:"soixante-deux",63:"soixante-trois",64:"soixante-quatre",65:"soixante-cinq",66:"soixante-six",67:"soixante-sept",68:"soixante-huit",69:"soixante-neuf",70:"soixante-dix",
+      71:"soixante-et-onze",72:"soixante-douze",73:"soixante-treize",74:"soixante-quatorze",75:"soixante-quinze",76:"soixante-seize",77:"soixante-dix-sept",78:"soixante-dix-huit",79:"soixante-dix-neuf",80:"quatre-vingts",
+      81:"quatre-vingt-un",82:"quatre-vingt-deux",83:"quatre-vingt-trois",84:"quatre-vingt-quatre",85:"quatre-vingt-cinq",86:"quatre-vingt-six",87:"quatre-vingt-sept",88:"quatre-vingt-huit",89:"quatre-vingt-neuf",90:"quatre-vingt-dix",
+      91:"quatre-vingt-onze",92:"quatre-vingt-douze",93:"quatre-vingt-treize",94:"quatre-vingt-quatorze",95:"quatre-vingt-quinze",96:"quatre-vingt-seize",97:"quatre-vingt-dix-sept",98:"quatre-vingt-dix-huit",99:"quatre-vingt-dix-neuf",
+      100:"cent",101:"cent-un",110:"cent-dix",120:"cent-vingt",
+      200:"deux-cents",201:"deux-cent-un",210:"deux-cent-dix",220:"deux-cent-vingt",280:"deux-cent-quatre-vingts",281:"deux-cent-quatre-vingt-un",
+      300:"trois-cents",301:"trois-cent-un",400:"quatre-cents",500:"cinq-cents",600:"six-cents",700:"sept-cents",800:"huit-cents",900:"neuf-cents",
+      999:"neuf-cent-quatre-vingt-dix-neuf",
+      1000:"mille",1001:"mille-un",1010:"mille-dix",1100:"mille-cent",1234:"mille-deux-cent-trente-quatre",
+      2000:"deux-mille",2001:"deux-mille-un",5555:"cinq-mille-cinq-cent-cinquante-cinq",
+      10000:"dix-mille",100000:"cent-mille",1000000:"un-million",2000000:"deux-millions"
+    };
+
+    const QUESTION_POOL = Object.keys(QUIZ_DATA).map(n => parseInt(n, 10));
+
+    function normalizeFrenchNumber(str) {
+      if (!str) return "";
+      return str
+        .toLowerCase()
+        .normalize("NFC")
+        .replace(/['']/g, "'")
+        .replace(/-/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .replace(/\s/g, "");
+    }
+
+    function containsNonStandardFR(str) {
+      const s = (str || "").toLowerCase();
+      return s.includes("septante") || s.includes("huitante") ||
+             s.includes("octante") || s.includes("nonante");
+    }
+
+    function pickRandomQuestion() {
+      const idx = Math.floor(Math.random() * QUESTION_POOL.length);
+      return QUESTION_POOL[idx];
+    }
+
+    const numberEl = document.getElementById("number");
+    const answerEl = document.getElementById("answer");
+    const statusEl = document.getElementById("status");
+    const formEl = document.getElementById("quiz-form");
+    const nextBtn = document.getElementById("next-btn");
+    const cheatToggleBtn = document.getElementById("cheat-toggle");
+    const cheatsheetEl = document.getElementById("cheatsheet");
+    const statCorrectEl = document.getElementById("stat-correct");
+    const statWrongEl = document.getElementById("stat-wrong");
+    const statRateEl = document.getElementById("stat-rate");
+
+    let currentNumber = null;
+    let stats = { correct: 0, wrong: 0 };
+    let lockInput = false;
+
+    function updateStatsDisplay() {
+      statCorrectEl.textContent = stats.correct;
+      statWrongEl.textContent = stats.wrong;
+      const total = stats.correct + stats.wrong;
+      statRateEl.textContent = total === 0
+        ? "–"
+        : `${Math.round((stats.correct / total) * 100)} %`;
+    }
+
+    function showQuestion() {
+      currentNumber = pickRandomQuestion();
+      numberEl.textContent = currentNumber.toLocaleString("de-DE");
+      answerEl.value = "";
+      answerEl.focus();
+      statusEl.innerHTML = "";
+      lockInput = false;
+    }
+
+    let continueBtnVisible = false;
+
+    function showNextButton() {
+      const continueBtn = document.createElement("button");
+      continueBtn.type = "button";
+      continueBtn.className = "btn btn-primary";
+      continueBtn.textContent = "Weiter → ";
+      continueBtn.id = "continue-btn";
+      continueBtn.addEventListener("click", () => {
+        showQuestion();
+      });
+      statusEl.appendChild(continueBtn);
+      continueBtnVisible = true;
+    }
+
+    function setStatusCorrect(details) {
+      statusEl.innerHTML = `
+        <div class="status-line status-correct">
+          <div class="status-main">
+            <span class="icon">✅</span>
+            <span class="label">Richtig!</span>
+          </div>
+          <div class="status-detail">${details}</div>
+        </div>
+      `;
+    }
+
+    function setStatusWrong(user, correct, extraDetail) {
+      const chips = [];
+      if (containsNonStandardFR(user)) {
+        chips.push(`<span class="chip"><strong>Hinweis:</strong> belg./schweiz. Form (septante/nonante)</span>`);
+      }
+
+      const extra = extraDetail
+        ? `<div class="chips">${chips.concat(extraDetail).join("")}</div>`
+        : (chips.length ? `<div class="chips">${chips.join("")}</div>` : "");
+
+      statusEl.innerHTML = `
+        <div class="status-line status-wrong">
+          <div class="status-main">
+            <span class="icon">❌</span>
+            <span class="label">Leider nicht ganz.</span>
+          </div>
+          <div class="status-detail">
+            Deine Eingabe war nicht gleich der französischen Schreibweise.
+          </div>
+        </div>
+        <div class="correct-answer">
+          Richtig wäre: <strong>${correct}</strong>
+        </div>
+        ${extra}
+      `;
+    }
+
+    formEl.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (lockInput || currentNumber == null) return;
+
+      const userAnswerRaw = answerEl.value || "";
+      const correctRaw = QUIZ_DATA[currentNumber];
+
+      const userNorm = normalizeFrenchNumber(userAnswerRaw);
+      const correctNorm = normalizeFrenchNumber(correctRaw);
+
+      lockInput = true;
+
+      if (!userNorm) {
+        setStatusWrong(userAnswerRaw, correctRaw);
+        stats.wrong += 1;
+        updateStatsDisplay();
+        setTimeout(showQuestion, 1500);
+        return;
+      }
+
+      if (userNorm === correctNorm && !containsNonStandardFR(userAnswerRaw)) {
+        stats.correct += 1;
+        updateStatsDisplay();
+        setStatusCorrect("Schreibweise passt (Bindestriche/Leerzeichen sind flexibel).");
+        showNextButton();
+      } else {
+        stats.wrong += 1;
+        updateStatsDisplay();
+        const extras = [];
+        if (containsNonStandardFR(userAnswerRaw)) {
+          extras.push(`<span class="chip"><strong>Klassisch FR:</strong> im Quiz kein septante / nonante</span>`);
+        }
+        setStatusWrong(userAnswerRaw, correctRaw, extras.join(""));
+        showNextButton();
+      }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      showQuestion();
+    });
+
+    const cheatWrapperEl = document.getElementById("cheatsheet-wrapper");
+
+    cheatToggleBtn.addEventListener("click", () => {
+      const open = cheatsheetEl.classList.toggle("open");
+      cheatWrapperEl.classList.toggle("open", open);
+      cheatToggleBtn.textContent = open ? "Cheatsheet ausblenden" : "Cheatsheet einblenden";
+      cheatsheetEl.setAttribute("aria-hidden", open ? "false" : "true");
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        if (document.activeElement === answerEl && !lockInput) {
+          e.preventDefault();
+          formEl.requestSubmit();
+        } else if (continueBtnVisible) {
+          e.preventDefault();
+          const continueBtn = document.getElementById("continue-btn");
+          if (continueBtn) continueBtn.click();
+        }
+      }
+    });
+
+    showQuestion();
+  </script>
+</body>
+</html>
