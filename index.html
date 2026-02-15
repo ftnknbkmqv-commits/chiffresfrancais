@@ -81,6 +81,19 @@
       color: var(--accent);
     }
 
+    .mode-switch {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(145deg, #3b82f6, #2563eb);
+      color: white;
+      border-color: transparent;
+    }
+
     .card {
       background: radial-gradient(circle at top left, #111827 0, #020617 55%);
       border-radius: 14px;
@@ -342,7 +355,7 @@
       <div>
         <h1>Französische Zahlen</h1>
         <div class="subtitle">
-          Schreib die Zahl auf Französisch – Bindestriche oder Leerzeichen, beides passt.
+          Schreibmodus: Ziffer → Französisch · Ziffermodus: Französisch → Ziffer.
         </div>
       </div>
       <div class="pill">
@@ -351,7 +364,12 @@
     </div>
 
     <div class="card">
-      <div class="number-label">Zahl</div>
+      <div class="mode-switch" role="group" aria-label="Quiz-Modus">
+        <button id="mode-write" class="btn btn-ghost btn-small mode-btn active" type="button">Schreibmodus</button>
+        <button id="mode-digit" class="btn btn-ghost btn-small mode-btn" type="button">Ziffermodus</button>
+      </div>
+
+      <div class="number-label" id="prompt-label">Zahl</div>
       <div id="number" class="number-display">–</div>
 
       <form id="quiz-form">
@@ -506,6 +524,7 @@ Belgien/Schweiz: septante, huitante, nonante</br>
     }
 
     const numberEl = document.getElementById("number");
+    const promptLabelEl = document.getElementById("prompt-label");
     const answerEl = document.getElementById("answer");
     const statusEl = document.getElementById("status");
     const formEl = document.getElementById("quiz-form");
@@ -515,10 +534,13 @@ Belgien/Schweiz: septante, huitante, nonante</br>
     const statCorrectEl = document.getElementById("stat-correct");
     const statWrongEl = document.getElementById("stat-wrong");
     const statRateEl = document.getElementById("stat-rate");
+    const modeWriteBtn = document.getElementById("mode-write");
+    const modeDigitBtn = document.getElementById("mode-digit");
 
     let currentNumber = null;
     let stats = { correct: 0, wrong: 0 };
     let lockInput = false;
+    let mode = "write";
 
     function updateStatsDisplay() {
       statCorrectEl.textContent = stats.correct;
@@ -529,13 +551,26 @@ Belgien/Schweiz: septante, huitante, nonante</br>
         : `${Math.round((stats.correct / total) * 100)} %`;
     }
 
+    function renderMode() {
+      const inWriteMode = mode === "write";
+      modeWriteBtn.classList.toggle("active", inWriteMode);
+      modeDigitBtn.classList.toggle("active", !inWriteMode);
+      promptLabelEl.textContent = inWriteMode ? "Zahl" : "Französische Zahl";
+      answerEl.placeholder = inWriteMode
+        ? "z. B. deux cent cinquante-trois"
+        : "z. B. 253";
+    }
+
     function showQuestion() {
       currentNumber = pickRandomQuestion();
-      numberEl.textContent = currentNumber.toLocaleString("de-DE");
+      numberEl.textContent = mode === "write"
+        ? currentNumber.toLocaleString("de-DE")
+        : QUIZ_DATA[currentNumber];
       answerEl.value = "";
       answerEl.focus();
       statusEl.innerHTML = "";
       lockInput = false;
+      continueBtnVisible = false;
     }
 
     let continueBtnVisible = false;
@@ -567,13 +602,17 @@ Belgien/Schweiz: septante, huitante, nonante</br>
 
     function setStatusWrong(user, correct, extraDetail) {
       const chips = [];
-      if (containsNonStandardFR(user)) {
+      if (mode === "write" && containsNonStandardFR(user)) {
         chips.push(`<span class="chip"><strong>Hinweis:</strong> belg./schweiz. Form (septante/nonante)</span>`);
       }
 
       const extra = extraDetail
         ? `<div class="chips">${chips.concat(extraDetail).join("")}</div>`
         : (chips.length ? `<div class="chips">${chips.join("")}</div>` : "");
+
+      const detailText = mode === "write"
+        ? "Deine Eingabe war nicht gleich der französischen Schreibweise."
+        : "Deine Eingabe war keine gültige arabische Zahl für diese Aufgabe.";
 
       statusEl.innerHTML = `
         <div class="status-line status-wrong">
@@ -582,7 +621,7 @@ Belgien/Schweiz: septante, huitante, nonante</br>
             <span class="label">Leider nicht ganz.</span>
           </div>
           <div class="status-detail">
-            Deine Eingabe war nicht gleich der französischen Schreibweise.
+            ${detailText}
           </div>
         </div>
         <div class="correct-answer">
@@ -598,38 +637,75 @@ Belgien/Schweiz: septante, huitante, nonante</br>
 
       const userAnswerRaw = answerEl.value || "";
       const correctRaw = QUIZ_DATA[currentNumber];
-
-      const userNorm = normalizeFrenchNumber(userAnswerRaw);
-      const correctNorm = normalizeFrenchNumber(correctRaw);
-
       lockInput = true;
 
-      if (!userNorm) {
-        setStatusWrong(userAnswerRaw, correctRaw);
-        stats.wrong += 1;
-        updateStatsDisplay();
-        setTimeout(showQuestion, 1500);
+      if (mode === "write") {
+        const userNorm = normalizeFrenchNumber(userAnswerRaw);
+        const correctNorm = normalizeFrenchNumber(correctRaw);
+
+        if (!userNorm) {
+          setStatusWrong(userAnswerRaw, correctRaw);
+          stats.wrong += 1;
+          updateStatsDisplay();
+          setTimeout(showQuestion, 1500);
+          return;
+        }
+
+        if (userNorm === correctNorm && !containsNonStandardFR(userAnswerRaw)) {
+          stats.correct += 1;
+          updateStatsDisplay();
+          setStatusCorrect("Schreibweise passt (Bindestriche/Leerzeichen sind flexibel).");
+          showNextButton();
+        } else {
+          stats.wrong += 1;
+          updateStatsDisplay();
+          const extras = [];
+          if (containsNonStandardFR(userAnswerRaw)) {
+            extras.push(`<span class="chip"><strong>Klassisch FR:</strong> im Quiz kein septante / nonante</span>`);
+          }
+          setStatusWrong(userAnswerRaw, correctRaw, extras.join(""));
+          showNextButton();
+        }
         return;
       }
 
-      if (userNorm === correctNorm && !containsNonStandardFR(userAnswerRaw)) {
+      const trimmed = userAnswerRaw.trim();
+      const parsed = Number(trimmed);
+      const validDigits = /^\d+$/.test(trimmed);
+      const hasLeadingZero = trimmed.length > 1 && trimmed.startsWith("0");
+      const isCorrect = validDigits && !hasLeadingZero && parsed === currentNumber;
+
+      if (isCorrect) {
         stats.correct += 1;
         updateStatsDisplay();
-        setStatusCorrect("Schreibweise passt (Bindestriche/Leerzeichen sind flexibel).");
-        showNextButton();
+        setStatusCorrect("Zahl stimmt.");
       } else {
         stats.wrong += 1;
         updateStatsDisplay();
         const extras = [];
-        if (containsNonStandardFR(userAnswerRaw)) {
-          extras.push(`<span class="chip"><strong>Klassisch FR:</strong> im Quiz kein septante / nonante</span>`);
+        if (hasLeadingZero) {
+          extras.push(`<span class="chip"><strong>Hinweis:</strong> keine führenden Nullen verwenden</span>`);
         }
-        setStatusWrong(userAnswerRaw, correctRaw, extras.join(""));
-        showNextButton();
+        setStatusWrong(userAnswerRaw, currentNumber.toString(), extras.join(""));
       }
+      showNextButton();
     });
 
     nextBtn.addEventListener("click", () => {
+      showQuestion();
+    });
+
+    modeWriteBtn.addEventListener("click", () => {
+      if (mode === "write") return;
+      mode = "write";
+      renderMode();
+      showQuestion();
+    });
+
+    modeDigitBtn.addEventListener("click", () => {
+      if (mode === "digit") return;
+      mode = "digit";
+      renderMode();
       showQuestion();
     });
 
@@ -656,6 +732,7 @@ Belgien/Schweiz: septante, huitante, nonante</br>
     });
     document.getElementById('copyright-year').textContent = new Date().getFullYear();
 
+    renderMode();
     showQuestion();
   </script>
 </body>
